@@ -1,9 +1,11 @@
+using System;
+
 namespace api.Utils
 {
-    public class Neighborhood
+    public class Region
     {
         private readonly string _name;
-        private readonly int _population;
+        private readonly UInt32? _population;
 
         public string Name
         {
@@ -13,7 +15,7 @@ namespace api.Utils
             }
         }
 
-        public int Population
+        public UInt32? Population
         {
             get
             {
@@ -21,7 +23,7 @@ namespace api.Utils
             }
         }
 
-        public Neighborhood(string name, int population)
+        public Region(string name, UInt32? population)
         {
             _name = name;
             _population = population;

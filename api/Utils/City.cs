@@ -1,30 +1,13 @@
+using System;
 using System.Collections.Generic;
 
 namespace api.Utils
 {
-    public class City
+    public class City : Region
     {
-        private readonly string _name;
-        private readonly int _population;
-        private List<Neighborhood> _neighborhoods;
+        private List<Region> _neighborhoods;
 
-        public string Name
-        {
-            get
-            {
-                return _name;
-            }
-        }
-
-        public int Population
-        {
-            get
-            {
-                return _population;
-            }
-        }
-
-        public Neighborhood[] Neighborhoods
+        public Region[] Neighborhoods
         {
             get
             {
@@ -32,16 +15,14 @@ namespace api.Utils
             }
         }
 
-        public City(string name, int population)
+        public City(string name, UInt32? population) : base(name, population)
         {
-            _name = name;
-            _population = population;
-            _neighborhoods = new List<Neighborhood>();
+            _neighborhoods = new List<Region>();
         }
 
-        public void AddNeighborhood(Neighborhood nb)
+        public void AddNeighborhood(Region neighborhood)
         {
-            _neighborhoods.Add(nb);
+            _neighborhoods.Add(neighborhood);
         }
     }
 }

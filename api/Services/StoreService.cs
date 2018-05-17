@@ -8,12 +8,15 @@ namespace api.Services
     public class StoreService : IStoreService
     {
         private const string TemplatesSetKey = "templates";
+        private const string RedisAddressEnvVar = "redis_addr";
 
         private readonly RedisManagerPool _manager;
 
         public StoreService()
         {
-            _manager = new RedisManagerPool("localhost:6379");
+            var redisAddr = System.Environment.GetEnvironmentVariable(RedisAddressEnvVar);
+            if (redisAddr == null) redisAddr = "localhost:6379";
+            _manager = new RedisManagerPool(redisAddr);
         }
 
         public string[] GetTemplates()

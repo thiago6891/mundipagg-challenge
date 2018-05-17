@@ -51,63 +51,58 @@ namespace api.Utils
 
             if (_hasNeighborhoods)
             {
-                var preNbCityMatches = _cityRegexes[0].Matches(input);
-                var postNbCityMatches = _cityRegexes.Length > 1 ?
-                    _cityRegexes[1].Matches(input) : null;
+                var preNeighborhoodMatches = _cityRegexes[0] != null ? _cityRegexes[0].Matches(input) : null;
+                var postNeighborhoodMatches = _cityRegexes[1] != null ? _cityRegexes[1].Matches(input) : null;
                 
-                if (postNbCityMatches != null && (preNbCityMatches.Count != postNbCityMatches.Count))
-                    throw new InvalidOperationException("Wrong template.");
+                if (preNeighborhoodMatches != null && postNeighborhoodMatches != null && 
+                    preNeighborhoodMatches.Count != postNeighborhoodMatches.Count)
+                        throw new InvalidOperationException("Wrong template.");
                 
-                var cities = new City[preNbCityMatches.Count];
+                var totalCityMatches = preNeighborhoodMatches != null ?
+                    preNeighborhoodMatches.Count : postNeighborhoodMatches.Count;
+                var cities = new City[totalCityMatches];
                 
                 for (int i = 0; i < cities.Length; i++)
                 {
-                    string cityName;
-                    string popStr;
-                    if (postNbCityMatches != null)
-                    {
-                        cityName = preNbCityMatches[i].Groups[CityNameRegexVar].Success ? 
-                            preNbCityMatches[i].Groups[CityNameRegexVar].ToString() :
-                            postNbCityMatches[i].Groups[CityNameRegexVar].ToString();
-                        popStr = preNbCityMatches[i].Groups[CityPopulationRegexVar].Success ?
-                            preNbCityMatches[i].Groups[CityPopulationRegexVar].ToString() :
-                            postNbCityMatches[i].Groups[CityPopulationRegexVar].ToString();
-                    }
-                    else
-                    {
-                        cityName = preNbCityMatches[i].Groups[CityNameRegexVar].ToString();
-                        popStr = preNbCityMatches[i].Groups[CityPopulationRegexVar].ToString();
-                    }
+                    cities[i] = GetCity(
+                        preNeighborhoodMatches != null ? preNeighborhoodMatches[i] : null,
+                        postNeighborhoodMatches != null ? postNeighborhoodMatches[i] : null
+                    );
                     
-                    UInt32 cityPop;
-                    if (UInt32.TryParse(popStr, out cityPop))
-                        cities[i] = new City(cityName, cityPop);
-                    else
-                        cities[i] = new City(cityName, null);
-                    
-                    var cityStartIdx = preNbCityMatches[i].Index;
-                    
+                    int cityStartIdx;
                     int? cityEndIdx;
-                    if (i + 1 < cities.Length)
-                        cityEndIdx = preNbCityMatches[i + 1].Index;
+                    if (preNeighborhoodMatches == null)
+                    {
+                        if (i > 0)
+                            cityStartIdx = postNeighborhoodMatches[i - 1].Index;
+                        else
+                            cityStartIdx = 0;
+                        
+                        cityEndIdx = postNeighborhoodMatches[i].Index + postNeighborhoodMatches[i].Length;
+                    }
+                    else if (postNeighborhoodMatches == null)
+                    {
+                        cityStartIdx = preNeighborhoodMatches[i].Index;
+                        
+                        if (i + 1 < cities.Length)
+                            cityEndIdx = preNeighborhoodMatches[i + 1].Index;
+                        else
+                            cityEndIdx = null;
+                    }
                     else
-                        cityEndIdx = null;
+                    {
+                        cityStartIdx = preNeighborhoodMatches[i].Index;
+                        cityEndIdx = postNeighborhoodMatches[i].Index + postNeighborhoodMatches[i].Length;
+                    }
                     
                     var nbStr = cityEndIdx.HasValue ?
                         input.Substring(cityStartIdx, cityEndIdx.Value - cityStartIdx) :
                         input.Substring(cityStartIdx);
                     var nbMatches = _neighborhoodRegex.Matches(nbStr);
 
-                    for (int j = 0; j < nbMatches.Count; j++)
-                    {
-                        var nbName = nbMatches[j].Groups[NeighborhoodNameRegexVar].ToString();
-                        var nbPopMatch = nbMatches[j].Groups[NeighborhoodPopulationRegexVar];
-                        UInt32 nbPop;
-                        if (UInt32.TryParse(nbPopMatch.ToString(), out nbPop))
-                            cities[i].AddNeighborhood(new Region(nbName, nbPop));
-                        else
-                            cities[i].AddNeighborhood(new Region(nbName, null));
-                    }
+                    var neighborhoods = GetNeighborhoods(nbMatches);
+                    foreach (var neighborhood in neighborhoods)
+                        cities[i].AddNeighborhood(neighborhood);
                 }
 
                 return cities;
@@ -118,6 +113,56 @@ namespace api.Utils
             }
         }
 
+        private Region[] GetNeighborhoods(MatchCollection matches)
+        {
+            var neighborhoods = new Region[matches.Count];
+
+            for (int i = 0; i < matches.Count; i++)
+            {
+                var name = matches[i].Groups[NeighborhoodNameRegexVar].ToString();
+                var populationMatch = matches[i].Groups[NeighborhoodPopulationRegexVar].ToString();
+                UInt32 population;
+                if (UInt32.TryParse(populationMatch.ToString(), out population))
+                    neighborhoods[i] = new Region(name, population);
+                else
+                    neighborhoods[i] = new Region(name, null);
+            }
+
+            return neighborhoods;
+        }
+
+        private City GetCity(Match matchOne, Match matchTwo)
+        {
+            string cityName;
+            string popStr;
+
+            if (matchOne == null)
+            {
+                cityName = matchTwo.Groups[CityNameRegexVar].ToString();
+                popStr = matchTwo.Groups[CityPopulationRegexVar].ToString();
+            }
+            else if (matchTwo == null)
+            {
+                cityName = matchOne.Groups[CityNameRegexVar].ToString();
+                popStr = matchOne.Groups[CityPopulationRegexVar].ToString();
+            }
+            else
+            {
+                cityName = matchOne.Groups[CityNameRegexVar].Success ? 
+                    matchOne.Groups[CityNameRegexVar].ToString() :
+                    matchTwo.Groups[CityNameRegexVar].ToString();
+                popStr = matchOne.Groups[CityPopulationRegexVar].Success ?
+                    matchOne.Groups[CityPopulationRegexVar].ToString() :
+                    matchTwo.Groups[CityPopulationRegexVar].ToString();
+            }
+            
+            UInt32 cityPop;
+            if (UInt32.TryParse(popStr, out cityPop))
+                return new City(cityName, cityPop);
+            else
+                return new City(cityName, null);
+        }
+        
         private City[] ExtractCities(string input, Regex cityRegex)
         {
             var cityMatches = cityRegex.Matches(input);
@@ -143,7 +188,7 @@ namespace api.Utils
             if (!_hasNeighborhoods)
                 return new Regex[] { new Regex(parts[1]) };
 
-            var cityRegexes = new List<Regex>();
+            var cityRegexes = new Regex[2];
 
             // In this scenario, parts 1 and 3 contain the city
             // template. However, we're only interested in using as
@@ -151,11 +196,11 @@ namespace api.Utils
             for (int i = 1; i <= 3; i += 2)
             {
                 if (parts[i].Contains(string.Format("(?<{0}>.+)", CityNameRegexVar)) ||
-                    parts[i].Contains(string.Format("(?<{0}>.+)", CityPopulationRegexVar)))
-                        cityRegexes.Add(new Regex(parts[i]));
+                    parts[i].Contains(string.Format("(?<{0}>.*)", CityPopulationRegexVar)))
+                        cityRegexes[i / 2] = new Regex(parts[i]);
             }
 
-            return cityRegexes.ToArray();
+            return cityRegexes;
         }
 
         private Regex CreateNeighborHoodRegex(string[] parts)
@@ -197,9 +242,9 @@ namespace api.Utils
         {
             return template
                 .Replace(Regex.Escape(CityNameTag), string.Format("(?<{0}>.+)", CityNameRegexVar))
-                .Replace(Regex.Escape(CityPopulationTag), string.Format("(?<{0}>.+)", CityPopulationRegexVar))
+                .Replace(Regex.Escape(CityPopulationTag), string.Format("(?<{0}>.*)", CityPopulationRegexVar))
                 .Replace(Regex.Escape(NeighborhoodNameTag), string.Format("(?<{0}>.+)", NeighborhoodNameRegexVar))
-                .Replace(Regex.Escape(NeighborhoodPopulationTag), string.Format("(?<{0}>.+)", NeighborhoodPopulationRegexVar));
+                .Replace(Regex.Escape(NeighborhoodPopulationTag), string.Format("(?<{0}>.*)", NeighborhoodPopulationRegexVar));
         }
 
         private string RemoveExcessWhiteSpace(string template)

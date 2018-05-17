@@ -7,7 +7,7 @@ namespace tests
     public class TemplateTest
     {
         [Fact]
-        public void TestOptionalCommaInJSONLikeTemplate()
+        public void TestOptionalCommaAndNoPopulationInJSONLikeTemplate()
         {
             var templateStr = @"
             {
@@ -41,6 +41,11 @@ namespace tests
                                 ""population"": ""7503""
                             }
                         ]
+                    },
+                    {
+                        ""name"": ""Cruzeiro do Sul"",
+                        ""population"": """",
+                        ""neighborhoods"":[]
                     }
                 ]
             }
@@ -49,9 +54,11 @@ namespace tests
             var template = new Template(templateStr);
             var cities = template.ExtractCities(input);
 
-            Assert.Single(cities);
+            Assert.Equal(2, cities.Length);
             Assert.Equal("Rio Branco", cities[0].Name);
+            Assert.Equal("Cruzeiro do Sul", cities[1].Name);
             Assert.Equal((UInt32)576589, cities[0].Population.Value);
+            Assert.False(cities[1].Population.HasValue);
             Assert.Single(cities[0].Neighborhoods);
             Assert.Equal("Habitasa", cities[0].Neighborhoods[0].Name);
             Assert.Equal((UInt32)7503, cities[0].Neighborhoods[0].Population);

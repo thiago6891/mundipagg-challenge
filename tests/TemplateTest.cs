@@ -7,6 +7,139 @@ namespace tests
     public class TemplateTest
     {
         [Fact]
+        public void TestTemplateWithWrongLoops()
+        {
+            var templateStr = @"
+            {
+                ""cities"":[
+                    {{for city in cities}}
+                    {
+                        ""name"": ""{{city.name}}"",
+                        ""population"": ""{{city.population}}"",
+                        ""neighborhoods"":[
+                            {{for neighborhood in city.neighborhoods}}
+                            {
+                                ""name"": ""{{neighborhood.name}}"",
+                                ""population"": ""{{neighborhood.population}}""
+                            }
+                        ]
+                    }{{,}}
+                    {{endfor}}
+                ]
+            }
+            ";
+
+            Assert.Throws<FormatException>(() => new Template(templateStr));
+        }
+
+        [Fact]
+        public void TestTemplateWithMissingTags()
+        {
+            var templateStr = @"
+            {
+                ""cities"":[
+                    {{for city in cities}}
+                    {
+                        ""name"": ""{{city.name}}"",
+                        ""population"": ""{{city.population}}"",
+                        ""neighborhoods"":[
+                            {{for neighborhood in city.neighborhoods}}
+                            {
+                                ""population"": ""{{neighborhood.population}}""
+                            }
+                            {{endfor}}
+                        ]
+                    }{{,}}
+                    {{endfor}}
+                ]
+            }
+            ";
+
+            Assert.Throws<FormatException>(() => new Template(templateStr));
+        }
+
+        [Fact]
+        public void TestTemplateWithNeighborhoodLoopOutsideCityLoop()
+        {
+            var templateStr = @"
+            {
+                ""cities"":[
+                    {{for city in cities}}
+                    {
+                        ""name"": ""{{city.name}}"",
+                        ""population"": ""{{city.population}}"",
+                        ""neighborhoods"":[
+                        ]
+                    }{{,}}
+                    {{endfor}}
+                ],
+                {{for neighborhood in city.neighborhoods}}
+                {
+                    ""name"": ""{{neighborhood.name}}"",
+                    ""population"": ""{{neighborhood.population}}""
+                }
+                {{endfor}}
+            }
+            ";
+
+            Assert.Throws<FormatException>(() => new Template(templateStr));
+        }
+
+        [Fact]
+        public void TestTemplateWithNeighborhoodTagsOutsideLoop()
+        {
+            var templateStr = @"
+            {
+                ""cities"":[
+                    {{for city in cities}}
+                    {
+                        ""name"": ""{{city.name}}"",
+                        ""population"": ""{{city.population}}"",
+                        ""neighborhoods"":[
+                            {{for neighborhood in city.neighborhoods}}
+                            {
+                                ""population"": ""{{neighborhood.population}}""
+                            }
+                            {{endfor}}
+                        ],
+                        ""name"": ""{{neighborhood.name}}""
+                    }{{,}}
+                    {{endfor}}
+                ]
+            }
+            ";
+
+            Assert.Throws<FormatException>(() => new Template(templateStr));
+        }
+
+        [Fact]
+        public void TestTemplateWithCityTagsOutsideLoop()
+        {
+            var templateStr = @"
+            {
+                ""cities"":[
+                    ""name"": ""{{city.name}}"",
+                    ""population"": ""{{city.population}}"",
+                    {{for city in cities}}
+                    {
+                        ""neighborhoods"":[
+                            {{for neighborhood in city.neighborhoods}}
+                            {
+                                ""name"": ""{{neighborhood.name}}"",
+                                ""population"": ""{{neighborhood.population}}""
+                            }
+                            {{endfor}}
+                        ]
+                    }{{,}}
+                    {{endfor}}
+                ]
+            }
+            ";
+
+            Assert.Throws<FormatException>(() => new Template(templateStr));
+        }
+
+        [Fact]
         public void TestOptionalCommaAndNoPopulationInJSONLikeTemplate()
         {
             var templateStr = @"

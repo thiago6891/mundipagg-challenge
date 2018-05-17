@@ -277,6 +277,7 @@ namespace api.Utils
             var cityPopTagCount = Regex.Matches(template, CityPopulationTag).Count;
             var nbNameTagCount = Regex.Matches(template, NeighborhoodNameTag).Count;
             var nbPopTagCount = Regex.Matches(template, NeighborhoodPopulationTag).Count;
+            var nbLoopCount = Regex.Matches(template, NeighborhoodLoop).Count;
 
             if (cityNameTagCount != 1)
                 throw new FormatException(string.Format(
@@ -286,13 +287,13 @@ namespace api.Utils
                 throw new FormatException(string.Format(
                     "Expected 1 \"{0}\". Found {1}.", CityPopulationTag, cityPopTagCount));
 
-            if (nbNameTagCount > 1)
+            if (nbNameTagCount != nbLoopCount)
                 throw new FormatException(string.Format(
-                    "Expected no more than 1 \"{0}\". Found {1}.", NeighborhoodNameTag, nbNameTagCount));
+                    "Expected {0} \"{1}\". Found {2}.", nbLoopCount, NeighborhoodNameTag, nbNameTagCount));
 
-            if (nbNameTagCount > 1)
+            if (nbNameTagCount != nbLoopCount)
                 throw new FormatException(string.Format(
-                    "Expected no more than 1 \"{0}\". Found {1}.", NeighborhoodPopulationTag, nbPopTagCount));
+                    "Expected {0} \"{1}\". Found {2}.", nbLoopCount, NeighborhoodPopulationTag, nbPopTagCount));
         }
 
         private void AssertCorrectLoopsPositioning(string template)

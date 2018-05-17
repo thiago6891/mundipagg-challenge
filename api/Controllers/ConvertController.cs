@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using api.Interfaces;
 using api.Utils;
@@ -19,12 +15,10 @@ namespace api.Controllers
             _storeService = storeService;
         }
 
-        // POST api/convert
         [HttpPost]
-        public void Post()
+        public JsonResult Post()
         {
-            var reader = new StreamReader(Request.Body);
-            var input = reader.ReadToEnd();
+            var input = (new StreamReader(Request.Body)).ReadToEnd();
             string[] templates = _storeService.GetTemplates();
             foreach (var t in templates)
             {
@@ -32,11 +26,11 @@ namespace api.Controllers
                 var cities = template.ExtractCities(input);
                 if (cities.Length > 0)
                 {
-                    // Return cities in specified output format
+                    return Json(new ConvertResult(cities));
                 }
             }
 
-            // Return response stating it's not possible to convert input
+            return Json("Não foi possível converter o formato fornecido.");
         }
     }
 }

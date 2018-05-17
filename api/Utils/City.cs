@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace api.Utils
 {
@@ -7,11 +8,21 @@ namespace api.Utils
     {
         private List<Region> _neighborhoods;
 
+        [JsonProperty("bairros", Order = 3)]
         public Region[] Neighborhoods
         {
             get
             {
                 return _neighborhoods.ToArray();
+            }
+        }
+
+        [JsonProperty("cidade", Order = 1)]
+        public override string Name
+        {
+            get
+            {
+                return base.Name;
             }
         }
 

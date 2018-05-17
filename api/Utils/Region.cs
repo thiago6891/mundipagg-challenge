@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 namespace api.Utils
 {
@@ -7,7 +8,8 @@ namespace api.Utils
         private readonly string _name;
         private readonly UInt32? _population;
 
-        public string Name
+        [JsonProperty("nome", Order = 1)]
+        public virtual string Name
         {
             get
             {
@@ -15,6 +17,7 @@ namespace api.Utils
             }
         }
 
+        [JsonProperty("habitantes", Order = 2)]
         public UInt32? Population
         {
             get

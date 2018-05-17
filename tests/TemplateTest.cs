@@ -1,11 +1,114 @@
 using System;
 using Xunit;
 using api.Utils;
+using System.Text;
 
 namespace tests
 {
     public class TemplateTest
     {
+        [Fact]
+        public void TestVerySimpleTemplate()
+        {
+            StringBuilder sb;
+            
+            sb = new StringBuilder();
+            sb.Append("{{for city in cities}}\n");
+            sb.Append("{{city.name}}\n");
+            sb.Append("{{city.population}}\n");
+            sb.Append("{{endfor}}");
+            var templateStr = sb.ToString();
+
+            sb = new StringBuilder();
+            sb.Append("Rio de Janeiro\r\n");
+            sb.Append("12345\r\n");
+            sb.Append("Niterói\r\n");
+            sb.Append("67890");
+            var input = sb.ToString();
+
+            var template = new Template(templateStr);
+            var cities = template.ExtractCities(input);
+
+            Assert.Equal(2, cities.Length);
+            Assert.Equal("Rio de Janeiro", cities[0].Name);
+            Assert.Equal("Niterói", cities[1].Name);
+            Assert.Equal((UInt32)12345, cities[0].Population);
+            Assert.Equal((UInt32)67890, cities[1].Population);
+        }
+
+        [Fact]
+        public void TestVerySimpleTemplateWithRandomInput()
+        {
+            StringBuilder sb;
+            
+            sb = new StringBuilder();
+            sb.Append("{{for city in cities}}\n");
+            sb.Append("{{city.name}}\n");
+            sb.Append("{{city.population}}\n");
+            sb.Append("{{endfor}}");
+            var templateStr = sb.ToString();
+
+            var template = new Template(templateStr);
+
+            var rand = new Random();
+            var totalRandomTests = 10000;
+
+            for (int t = 0; t < totalRandomTests; t++)
+            {
+                var totalCities = rand.Next(100);
+                var inputCities = new City[totalCities];
+                
+                sb = new StringBuilder();
+                for (int c = 0; c < totalCities; c++)
+                {
+                    inputCities[c] = new City(
+                        string.Format("city_{0}", c),
+                        (UInt32)rand.Next(0, 1000000));
+                    sb.AppendLine(inputCities[c].Name);
+                    sb.AppendLine(inputCities[c].Population.Value.ToString());
+                }
+                var input = sb.ToString();
+
+                var outputCities = template.ExtractCities(input);
+
+                Assert.Equal(totalCities, outputCities.Length);
+                for (int c = 0; c < totalCities; c++)
+                {
+                    Assert.Equal(inputCities[c].Name, outputCities[c].Name);
+                    Assert.Equal(inputCities[c].Population, outputCities[c].Population);
+                }
+            }
+        }
+
+        [Fact]
+        public void TestTemplateWithDifferentLineEndings()
+        {
+            StringBuilder sb;
+            
+            sb = new StringBuilder();
+            sb.Append("{{for city in cities}}\n");
+            sb.Append("<city>\n");
+            sb.Append("{{city.name}}\n");
+            sb.Append("{{city.population}}\n");
+            sb.Append("</city>\n");
+            sb.Append("{{endfor}}");
+            var templateStr = sb.ToString();
+
+            sb = new StringBuilder();
+            sb.Append("<city>\r\n");
+            sb.Append("Rio de Janeiro\r\n");
+            sb.Append("12345\r\n");
+            sb.Append("</city>");
+            var input = sb.ToString();
+
+            var template = new Template(templateStr);
+            var cities = template.ExtractCities(input);
+
+            Assert.Single(cities);
+            Assert.Equal("Rio de Janeiro", cities[0].Name);
+            Assert.Equal((UInt32)12345, cities[0].Population);
+        }
+
         [Fact]
         public void TestTemplateWithWrongLoops()
         {

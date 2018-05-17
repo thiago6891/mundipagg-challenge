@@ -30,7 +30,7 @@ namespace api.Utils
 
             _hasNeighborhoods = Regex.Matches(template, NeighborhoodLoop).Count == 1;
 
-            template = RemoveExcessWhiteSpace(template);
+            template = RemoveExcessWhiteSpaceAndNormalizeLineEndings(template);
 
             // The for loops are the separators.
             var parts = SplitTemplateIntoParts(template);
@@ -47,7 +47,7 @@ namespace api.Utils
 
         public City[] ExtractCities(string input)
         {
-            input = RemoveExcessWhiteSpace(input);
+            input = RemoveExcessWhiteSpaceAndNormalizeLineEndings(input);
 
             if (_hasNeighborhoods)
             {
@@ -247,9 +247,12 @@ namespace api.Utils
                 .Replace(Regex.Escape(NeighborhoodPopulationTag), string.Format("(?<{0}>.*)", NeighborhoodPopulationRegexVar));
         }
 
-        private string RemoveExcessWhiteSpace(string template)
+        private string RemoveExcessWhiteSpaceAndNormalizeLineEndings(string template)
         {
-            return (new Regex(@" +")).Replace(template, " ");
+            template = (new Regex(@" +")).Replace(template, " ");
+            template = template.Replace("\r\n", "\n");
+            template = template.Replace("\r", "\n");
+            return template;
         }
 
         private static void AssertCorrectNumberOfLoops(string template)

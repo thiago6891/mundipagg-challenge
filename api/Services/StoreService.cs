@@ -1,77 +1,69 @@
+using System;
 using api.Interfaces;
+using api.Utils;
+using ServiceStack.Redis;
 
 namespace api.Services
 {
     public class StoreService : IStoreService
     {
+        private const string TemplatesSetKey = "templates";
+
+        private readonly RedisManagerPool _manager;
+
+        public StoreService()
+        {
+            _manager = new RedisManagerPool("localhost:6379");
+        }
+
         public string[] GetTemplates()
         {
-            var dummyTemplates = new string[]
-            {
-                @"
-                {
-                    ""cities"":[
-                        {{for city in cities}}
-                        {
-                            ""name"": ""{{city.name}}"",
-                            ""population"": ""{{city.population}}"",
-                            ""neighborhoods"":[
-                                {{for neighborhood in city.neighborhoods}}
-                                {
-                                    ""name"": ""{{neighborhood.name}}"",
-                                    ""population"": ""{{neighborhood.population}}""
-                                }
-                                {{endfor}}
-                            ]
-                        }{{,}}
-                        {{endfor}}
-                    ]
-                }
-                ",
-                @"<body>
-                {{for region in regions}}
-                    <region>
-                        <name>{{region}}</name>
-                        <cities>
-                        {{for city in cities}}
-                            <city>
-                                <name>{{city.name}}</name>
-                                <population>{{city.population}}</population>
-                                <neighborhoods>
-                                {{for neighborhood in city.neighborhoods}}
-                                    <neighborhood>
-                                        <name>{{neighborhood.name}}</name>
-                                        <zone>{{neighborhood.zone}}</zone>
-                                        <population>{{neighborhood.population}}</population>
-                                    </neighborhood>
-                                {{endfor}}
-                                </neighborhoods>
-                            </city>
-                        {{endfor}}
-                        </cities>
-                    </region>
-                {{endfor region}}
-                </body>",
-                @"<corpo>
-                {{for city in cities}}
-                    <cidade>
-                        <nome>{{city.name}}</nome>
-                        <populacao>{{city.population}}</populacao>
-                        <bairros>
-                        {{for neighborhood in city.neighborhoods}}
-                            <bairro>
-                                <nome>{{neighborhood.name}}</nome>
-                                <regiao>{{region}}</regiao>
-                                <populacao>{{neighborhood.population}}</populacao>
-                            </bairro>
-                            {{endfor}}
-                        </bairros>
-                    </cidade>
-                {{endfor}}
-                </corpo>"
-            };
+            string[] result;
             
-            return dummyTemplates;
+            using (var client = _manager.GetClient())
+            {
+                var templates = client.GetAllItemsFromSet(TemplatesSetKey);
+                result = new string[templates.Count];
+                templates.CopyTo(result);
+            }
+            
+            return result;
+        }
+
+        public bool SaveTemplate(string template)
+        {
+            using (var client = _manager.GetClient())
+            {
+                try
+                {
+                    template = TemplateCleaner
+                        .RemoveExcessWhiteSpaceAndNormalizeLineEndings(template);
+                    client.AddItemToSet(TemplatesSetKey, template);
+                }
+                catch (RedisException)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public bool DeleteTemplate(string template)
+        {
+            using (var client = _manager.GetClient())
+            {
+                try
+                {
+                    template = TemplateCleaner
+                        .RemoveExcessWhiteSpaceAndNormalizeLineEndings(template);
+                    client.RemoveItemFromSet(TemplatesSetKey, template);
+                }
+                catch (RedisException)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

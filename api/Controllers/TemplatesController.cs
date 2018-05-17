@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Interfaces;
@@ -17,36 +18,24 @@ namespace api.Controllers
             _storeService = storeService;
         }
 
-        // GET api/templates
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            return new string[] { "template1", "template2" };
+            return _storeService.GetTemplates();
         }
 
-        // GET api/templates/5
-        // [HttpGet("{id}")]
-        // public string Get(int id)
-        // {
-        //     return "value";
-        // }
-
-        // POST api/templates
         [HttpPost]
-        public void Post(string value)
+        public void Post()
         {
+            var input = (new StreamReader(Request.Body)).ReadToEnd();
+            Response.StatusCode = _storeService.SaveTemplate(input) ? 201 : 500;
         }
 
-        // PUT api/templates/5
-        // [HttpPut("{id}")]
-        // public void Put(int id, [FromBody]string value)
-        // {
-        // }
-
-        // DELETE api/templates/5
-        // [HttpDelete("{id}")]
-        // public void Delete(int id)
-        // {
-        // }
+        [HttpDelete]
+        public void Delete()
+        {
+            var input = (new StreamReader(Request.Body)).ReadToEnd();
+            Response.StatusCode = _storeService.DeleteTemplate(input) ? 200 : 500;
+        }
     }
 }

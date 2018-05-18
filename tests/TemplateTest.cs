@@ -365,7 +365,7 @@ namespace tests
                             {
                                 ""name"": ""{{neighborhood.name}}"",
                                 ""population"": ""{{neighborhood.population}}""
-                            }
+                            }{{,}}
                             {{endfor}}
                         ],
                         ""name"": ""{{city.name}}"",

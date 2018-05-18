@@ -286,3 +286,7 @@ Um template pode seguir o seguinte formato de exemplo:
 - A escolha do Redis como banco não teve nem um motivo técnico além do fato de suportar *Sets*, o que ajuda a evitar a duplicação de templates.
 
     *(Havia pensado em usar o MongoDB, mas preferi optar por algo que já me fosse familiar e dedicar a maior parte do tempo ao problema principal: Reverse Templating.)*
+
+- A aplicação também pode ser rodada fora do container caso seja desejado. Nesse caso, o Redis deve ser iniciado separadamente.
+
+    Por padrão, a aplicação vai tentar se conectar ao Redis em *localhost:6379*. Caso o Redis esteja hospedado em outro endereço ou porta, essa informação deve ser adicionada à uma variável de ambiente nomeada "redis_addr".

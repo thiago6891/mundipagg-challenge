@@ -64,7 +64,7 @@ Para executar os testes unitários, execute o seguinte comando a partir do diret
 
 A *Engine* de conversão de dados para o formato padrão foi baseada na idéia de *Reverse Templating*, ou seja, usar um template (como Razor, mustache, etc.) para extrair variáveis ao invés de adicioná-las.
 
-Primeiramente, tentei buscar uma algo pronto. Porém, não encontrei nenhuma solução robusta. Provavelmente pelo fato desse problema (*Reverse Templating*) não ser trivial.
+Primeiramente, tentei buscar algo pronto. Porém, não encontrei nenhuma solução robusta. Provavelmente pelo fato desse problema (*Reverse Templating*) não ser trivial.
 
 Procurei deixar a solução o mais simples possível para ser aplicada no contexto sugerido pelo desafio.
 
@@ -95,7 +95,7 @@ Um template pode seguir o seguinte formato de exemplo:
 
     - Acho que não faria muito sentido possuir dados de um censo demográfico sem as informações das cidades.
 
-2. O loop de bairros (*{{for neighborhood in city.neighborhoods}}*) é **opcional**. Porém, caso esteja presente, os *placeholders* de informações de bairro (*{{neighborhood.name}}* e *{{neighborhood.population}}*)
+2. O loop de bairros (*{{for neighborhood in city.neighborhoods}}*) é **opcional**. Porém, caso esteja presente, os *placeholders* de informações de bairro (*{{neighborhood.name}}* e *{{neighborhood.population}}*) passam a ser **obrigatórios**.
 
     - Acho que poderia ser possível ter estados que forneçam dados somente à nível de cidade. Logo, optei por deixar os bairros como opcionais.
 
@@ -137,7 +137,7 @@ Um template pode seguir o seguinte formato de exemplo:
 
     - Devido ao modo como o sistema foi implementado (usando expressões regulares), as variáveis precisam estar em linhas diferentes para não causar ambiguidade.
 
-5. Variáveis e loops que não possuem informações desejadas para gerar os dados de saída devem ser sinalidos usando-se a notação {{}}.
+5. Variáveis e loops que não possuem informações desejadas para gerar os dados de saída devem ser sinalizados usando-se a notação {{}}.
 
     Por exemplo:
 
@@ -242,7 +242,7 @@ Um template pode seguir o seguinte formato de exemplo:
         "neighborhoods": [
         ]
 
-    Assim como esses dois também não são iguais. As quebras de linha devem ser respaitadas.
+    Esses dois também **não** são iguais. As quebras de linha devem ser respeitadas.
 
 9. Devido à não trivialidade do problema, templates que apresentem ambiguidade causarão bugs. O que não vai acontecer (pelo menos assim eu espero) com formatos como XML e JSON. Porém, podem surgir em formatos genéricos.
 
@@ -254,6 +254,18 @@ Um template pode seguir o seguinte formato de exemplo:
     Esse é um exemplo de um template que seria considerado válido mas causaria um bug.
 
     Internamente, as expressões regulares dariam *match* com **qualquer** entrada de texto, independente se o formato de entrada é correto ou não.
+
+    Por exemplo:
+
+        Um
+        Arquivo
+        de
+        Texto
+        Qualquer
+
+    Esse exemplo teria como saída uma lista com duas cidades, *"Um"* e *"de"*.
+
+    Ambas com a informação de habitantes nula (as strings *"Arquivo"* e *"Texto"* não podem ser parseadas para um número).
 
     - Esse foi um problema que só me deparei hoje enquanto fecho o desafio. Não consegui pensar numa solução, mas também não quero estourar o prazo que estipulei.
 

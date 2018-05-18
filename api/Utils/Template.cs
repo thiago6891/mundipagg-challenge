@@ -21,6 +21,8 @@ namespace api.Utils
         private readonly Regex[] _cityRegexes;
         private readonly Regex _neighborhoodRegex;
 
+        private readonly string _templateString;
+
         public Template(string template)
         {
             AssertCorrectNumberOfLoops(template);
@@ -29,7 +31,8 @@ namespace api.Utils
 
             _hasNeighborhoods = Regex.Matches(template, NeighborhoodLoop).Count == 1;
 
-            template = TemplateCleaner.RemoveExcessWhiteSpaceAndNormalizeLineEndings(template);
+            template = RemoveExcessWhiteSpaceAndNormalizeLineEndings(template);
+            _templateString = template;
 
             // The for loops are the separators.
             var parts = SplitTemplateIntoParts(template);
@@ -46,7 +49,7 @@ namespace api.Utils
 
         public City[] ExtractCities(string input)
         {
-            input = TemplateCleaner.RemoveExcessWhiteSpaceAndNormalizeLineEndings(input);
+            input = RemoveExcessWhiteSpaceAndNormalizeLineEndings(input);
 
             if (_hasNeighborhoods)
             {
@@ -110,6 +113,11 @@ namespace api.Utils
             {
                 return ExtractCities(input, _cityRegexes[0]);
             }
+        }
+
+        public override string ToString()
+        {
+            return _templateString;
         }
 
         private Region[] GetNeighborhoods(MatchCollection matches)
@@ -244,6 +252,15 @@ namespace api.Utils
                 .Replace(Regex.Escape(CityPopulationTag), string.Format("(?<{0}>.*)", CityPopulationRegexVar))
                 .Replace(Regex.Escape(NeighborhoodNameTag), string.Format("(?<{0}>.+)", NeighborhoodNameRegexVar))
                 .Replace(Regex.Escape(NeighborhoodPopulationTag), string.Format("(?<{0}>.*)", NeighborhoodPopulationRegexVar));
+        }
+
+        private string RemoveExcessWhiteSpaceAndNormalizeLineEndings(string template)
+        {
+            template = template.Replace("\t", " ");
+            template = (new Regex(@" +")).Replace(template, " ");
+            template = template.Replace("\r\n", "\n");
+            template = template.Replace("\r", "\n");
+            return template;
         }
 
         private static void AssertCorrectNumberOfLoops(string template)

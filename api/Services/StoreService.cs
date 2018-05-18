@@ -1,6 +1,4 @@
-using System;
 using api.Interfaces;
-using api.Utils;
 using ServiceStack.Redis;
 
 namespace api.Services
@@ -39,8 +37,6 @@ namespace api.Services
             {
                 try
                 {
-                    template = TemplateCleaner
-                        .RemoveExcessWhiteSpaceAndNormalizeLineEndings(template);
                     client.AddItemToSet(TemplatesSetKey, template);
                 }
                 catch (RedisException)
@@ -57,8 +53,6 @@ namespace api.Services
             {
                 try
                 {
-                    template = TemplateCleaner
-                        .RemoveExcessWhiteSpaceAndNormalizeLineEndings(template);
                     client.RemoveItemFromSet(TemplatesSetKey, template);
                 }
                 catch (RedisException)

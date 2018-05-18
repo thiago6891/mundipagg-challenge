@@ -42,7 +42,7 @@ namespace tests
 
             templateService.IsValid(Arg.Any<string>()).ReturnsForAnyArgs(true);
             templateService.Clean(Arg.Any<string>()).ReturnsForAnyArgs("");
-            storeService.SaveTemplate(Arg.Any<string>()).Returns(true);
+            storeService.DeleteTemplate(Arg.Any<string>()).Returns(true);
 
             var controller = new TemplatesController(storeService, templateService);
             controller.ControllerContext = new ControllerContext();
@@ -53,7 +53,7 @@ namespace tests
             Received.InOrder(() => {
                 templateService.IsValid(Arg.Any<string>());
                 templateService.Clean(Arg.Any<string>());
-                storeService.SaveTemplate(Arg.Any<string>());
+                storeService.DeleteTemplate(Arg.Any<string>());
             });
         }
     }

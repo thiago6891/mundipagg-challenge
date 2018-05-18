@@ -258,7 +258,7 @@ namespace tests
                             {
                                 ""name"": ""{{neighborhood.name}}"",
                                 ""population"": ""{{neighborhood.population}}""
-                            }
+                            }{{,}}
                             {{endfor}}
                         ]
                     }{{,}}
@@ -315,7 +315,7 @@ namespace tests
                             {
                                 ""name"": ""{{neighborhood.name}}"",
                                 ""population"": ""{{neighborhood.population}}""
-                            }
+                            }{{,}}
                             {{endfor}}
                         ],
                         ""population"": ""{{city.population}}""

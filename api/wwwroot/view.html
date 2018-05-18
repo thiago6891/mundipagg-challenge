@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+        <title>View</title>
+    </head>
+    <body>
+            <div class="container">
+                <div class="row justify-content-center mt-5">
+                    <div class="col">
+                        <ul class="list-group" id="templates"></ul>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-6 bg-primary rounded m-5 text-center font-weight-bold">
+                        <a class="text-light" href="index.html">Voltar</a>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script>
+            var deleteTemplate = function (e) {
+                var btnId = e.target.id;
+                var n = btnId.split("_")[1];
+                var template = document.querySelector("#pre_" + n).innerText;
+                
+                var deleteRequest = new XMLHttpRequest();
+                deleteRequest.open("DELETE", "api/templates");
+
+                deleteRequest.onload = function () {
+                    if (deleteRequest.status == 200) {
+                        var card = document.querySelector("#card_" + n);
+                        card.remove();
+                    } else {
+                        alert("Ocorreu um erro ao tentar deletar o template.");
+                    }
+                };
+
+                deleteRequest.send(template);
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "api/templates");
+
+            xhr.onload = function () {
+                if (xhr.status == 200) {
+                    var templates = JSON.parse(xhr.responseText);
+                    var list = document.querySelector("#templates");
+                    for (let i = 0; i < templates.length; i++) {
+                        var template = templates[i];
+
+                        var pre = document.createElement("pre");
+                        pre.innerText = template;
+                        pre.id = "pre_" + i;
+
+                        var btn = document.createElement("button");
+                        btn.className = "btn btn-danger float-right";
+                        btn.innerText = "Deletar Template";
+                        btn.id = "btn_" + i;
+                        btn.onclick = deleteTemplate;
+
+                        var cardBody = document.createElement("div");
+                        cardBody.className = "card-body";
+
+                        var card = document.createElement("div");
+                        card.className = "card";
+                        card.id = "card_" + i;
+
+                        cardBody.appendChild(pre);
+                        cardBody.appendChild(btn);
+                        card.appendChild(cardBody);
+                        list.appendChild(card);
+                    }
+                } else {
+                    alert("Ocorreu um erro ao tentar buscar os templates. Favor recarregar a página.");
+                }
+            };
+
+            xhr.send();
+        </script>
+    </body>
+</html>

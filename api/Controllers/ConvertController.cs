@@ -26,10 +26,12 @@ namespace api.Controllers
                 var cities = template.ExtractCities(input);
                 if (cities.Length > 0)
                 {
+                    Response.StatusCode = 200;
                     return Json(new ConvertResult(cities));
                 }
             }
 
+            Response.StatusCode = 400;
             return Json("Não foi possível converter o formato fornecido.");
         }
     }

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+        <title>Add</title>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row justify-content-center mt-5">
+                <div class="col-6">
+                    <p class="text-center">Escreva o Template no Campo Abaixo</p>
+                    <textarea class="form-control" id="txt-area" rows="10"></textarea>
+                    <button type="button" class="btn btn-primary m-3" onclick="save_template()">Salvar</button>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-6 bg-primary rounded m-5 text-center font-weight-bold">
+                    <a class="text-light" href="index.html">Voltar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script>
+            var save_template = function() {
+                var template = $("#txt-area").val();
+                var xhr = new XMLHttpRequest();
+
+                xhr.onload = function() {
+                    if (xhr.status == 201) {
+                        $("#txt-area").val("");
+                        alert("Template Salvo!");
+                    } else if (xhr.status == 400) {
+                        alert("Template inválido.")
+                    } else {
+                        alert("Ocorreu um erro ao tentar salvar.");
+                    }
+                };
+
+                xhr.open("POST", "api/templates");
+                xhr.send(template);
+            }
+        </script>
+    </body>
+</html>

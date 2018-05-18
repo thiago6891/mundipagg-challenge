@@ -7,13 +7,14 @@ namespace api.Services
     {
         private const string TemplatesSetKey = "templates";
         private const string RedisAddressEnvVar = "redis_addr";
+        private const string DefaultRedisAddress = "localhost:6379";
 
         private readonly RedisManagerPool _manager;
 
         public StoreService()
         {
             var redisAddr = System.Environment.GetEnvironmentVariable(RedisAddressEnvVar);
-            if (redisAddr == null) redisAddr = "localhost:6379";
+            if (redisAddr == null) redisAddr = DefaultRedisAddress;
             _manager = new RedisManagerPool(redisAddr);
         }
 

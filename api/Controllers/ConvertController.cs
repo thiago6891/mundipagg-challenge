@@ -9,10 +9,12 @@ namespace api.Controllers
     public class ConvertController : Controller
     {
         private readonly IStoreService _storeService;
+        private readonly ITemplateService _templateService;
 
-        public ConvertController(IStoreService storeService)
+        public ConvertController(IStoreService storeService, ITemplateService templateService)
         {
             _storeService = storeService;
+            _templateService = templateService;
         }
 
         [HttpPost]
@@ -22,7 +24,7 @@ namespace api.Controllers
             string[] templates = _storeService.GetTemplates();
             foreach (var t in templates)
             {
-                var template = new Template(t);
+                var template = new Template(t, _templateService);
                 var cities = template.ExtractCities(input);
                 if (cities.Length > 0)
                 {

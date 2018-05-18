@@ -11,10 +11,12 @@ namespace api.Controllers
     public class TemplatesController : Controller
     {
         private readonly IStoreService _storeService;
+        private readonly ITemplateService _templateService;
 
-        public TemplatesController(IStoreService storeService)
+        public TemplatesController(IStoreService storeService, ITemplateService templateService)
         {
             _storeService = storeService;
+            _templateService = templateService;
         }
 
         [HttpGet]
@@ -28,11 +30,11 @@ namespace api.Controllers
         {
             var input = (new StreamReader(Request.Body)).ReadToEnd();
             
-            if (!IsTemplateValid(input))
+            if (!_templateService.IsValid(input))
             {
                 Response.StatusCode = 400;
             }
-            else if (_storeService.SaveTemplate((new Template(input)).ToString()))
+            else if (_storeService.SaveTemplate(_templateService.Clean(input)))
             {
                 Response.StatusCode = 201;
             }
@@ -47,11 +49,11 @@ namespace api.Controllers
         {
             var input = (new StreamReader(Request.Body)).ReadToEnd();
 
-            if (!IsTemplateValid(input))
+            if (!_templateService.IsValid(input))
             {
                 Response.StatusCode = 400;
             }
-            else if (_storeService.DeleteTemplate((new Template(input)).ToString()))
+            else if (_storeService.DeleteTemplate(_templateService.Clean(input)))
             {
                 Response.StatusCode = 200;
             }
@@ -59,19 +61,6 @@ namespace api.Controllers
             {
                 Response.StatusCode = 500;
             }
-        }
-
-        private bool IsTemplateValid(string input)
-        {
-            try
-            {
-                var template = new Template(input);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-            return true;
         }
     }
 }

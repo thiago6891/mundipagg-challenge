@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using api.Utils;
 using System.Text;
+using api.Services;
 
 namespace tests
 {
@@ -26,7 +27,7 @@ namespace tests
             sb.Append("67890");
             var input = sb.ToString();
 
-            var template = new Template(templateStr);
+            var template = new Template(templateStr, new TemplateService());
             var cities = template.ExtractCities(input);
 
             Assert.Equal(2, cities.Length);
@@ -48,7 +49,7 @@ namespace tests
             sb.Append("{{endfor}}");
             var templateStr = sb.ToString();
 
-            var template = new Template(templateStr);
+            var template = new Template(templateStr, new TemplateService());
 
             var rand = new Random();
             var totalRandomTests = 10000;
@@ -101,7 +102,7 @@ namespace tests
             sb.Append("</city>");
             var input = sb.ToString();
 
-            var template = new Template(templateStr);
+            var template = new Template(templateStr, new TemplateService());
             var cities = template.ExtractCities(input);
 
             Assert.Single(cities);
@@ -132,7 +133,7 @@ namespace tests
             }
             ";
 
-            Assert.Throws<FormatException>(() => new Template(templateStr));
+            Assert.Throws<FormatException>(() => new Template(templateStr, new TemplateService()));
         }
 
         [Fact]
@@ -158,7 +159,7 @@ namespace tests
             }
             ";
 
-            Assert.Throws<FormatException>(() => new Template(templateStr));
+            Assert.Throws<FormatException>(() => new Template(templateStr, new TemplateService()));
         }
 
         [Fact]
@@ -185,7 +186,7 @@ namespace tests
             }
             ";
 
-            Assert.Throws<FormatException>(() => new Template(templateStr));
+            Assert.Throws<FormatException>(() => new Template(templateStr, new TemplateService()));
         }
 
         [Fact]
@@ -212,7 +213,7 @@ namespace tests
             }
             ";
 
-            Assert.Throws<FormatException>(() => new Template(templateStr));
+            Assert.Throws<FormatException>(() => new Template(templateStr, new TemplateService()));
         }
 
         [Fact]
@@ -239,7 +240,7 @@ namespace tests
             }
             ";
 
-            Assert.Throws<FormatException>(() => new Template(templateStr));
+            Assert.Throws<FormatException>(() => new Template(templateStr, new TemplateService()));
         }
 
         [Fact]
@@ -287,7 +288,7 @@ namespace tests
             }
             ";
 
-            var template = new Template(templateStr);
+            var template = new Template(templateStr, new TemplateService());
             var cities = template.ExtractCities(input);
 
             Assert.Equal(2, cities.Length);
@@ -340,7 +341,7 @@ namespace tests
             }
             ";
 
-            var template = new Template(templateStr);
+            var template = new Template(templateStr, new TemplateService());
             var cities = template.ExtractCities(input);
 
             Assert.Single(cities);
@@ -391,7 +392,7 @@ namespace tests
             }
             ";
 
-            var template = new Template(templateStr);
+            var template = new Template(templateStr, new TemplateService());
             var cities = template.ExtractCities(input);
 
             Assert.Single(cities);
@@ -446,7 +447,7 @@ namespace tests
             </region>
             </body>";
 
-            var template = new Template(templateStr);
+            var template = new Template(templateStr, new TemplateService());
             var cities = template.ExtractCities(input);
 
             Assert.Single(cities);
@@ -514,7 +515,7 @@ namespace tests
             </region>
             </body>";
 
-            var template = new Template(templateStr);
+            var template = new Template(templateStr, new TemplateService());
             var cities = template.ExtractCities(input);
 
             Assert.Equal(2, cities.Length);
@@ -583,7 +584,7 @@ namespace tests
             </cidade>
             </corpo>";
             
-            var template = new Template(templateStr);
+            var template = new Template(templateStr, new TemplateService());
             var cities = template.ExtractCities(input);
 
             Assert.Equal(2, cities.Length);

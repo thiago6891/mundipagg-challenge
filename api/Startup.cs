@@ -20,6 +20,7 @@ namespace api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IStoreService, StoreService>();
+            services.AddTransient<ITemplateService, TemplateService>();
             services.AddMvc();
         }
 
